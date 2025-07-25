@@ -40,7 +40,7 @@ function App() {
 
   return (
     <arcgis-map
-      item-id="15ec06d72ad541af89ae3440b9bf6337"
+      item-id="5fcd777290d04ea2bcaa94a77374eeca"
       onarcgisViewReadyChange={handleViewReady}
       center="-73.9856644, 40.7484405"
       zoom="10"
