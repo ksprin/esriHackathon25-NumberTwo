@@ -10,56 +10,212 @@ body {
   font-family: Helvetica;
 }
 
-/* COMPONENTS // types */
-
-arcgis-map {
-  display: block;
+/* MAIN APP CONTAINER */
+.app-container {
+  display: flex;
   height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
-button{
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 6px 10px;
+/* LEFT SIDEBAR */
+.sidebar {
+  width: 450px;
+  min-width: 450px;
+  max-width: 450px;
+  height: 100vh;
+  background: white;
+  border-right: 1px solid #d1d5db;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* LOGO SECTION */
+.logo-section {
+  padding: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.logo-container {
+  margin-bottom: 24px;
+}
+
+.logo-img {
+  height: 48px;
+  width: auto;
+}
+
+/* SEARCH CONTAINER */
+.search-container {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  width: 16px;
+  height: 16px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
   font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  font-family: Helvetica;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
-.cards{
-  display: grid;
-  max-height: 40vh;
-  overflow-y: auto;
-  gap: 1rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+.search-input:focus {
+  border-color: #3b82f6;
 }
 
-.content{
-  padding: 5%;
-  justify-content: center;
-  align-items: center;
+/* LOCATIONS HEADER */
+.locations-header {
+  padding: 16px 24px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
 }
 
-
-
-.map-container{
-  padding: 5%;
-  justify-content: center;
-  align-items: center;
-}
-
-.navbar{
-  padding-bottom: 1rem;
-  border-bottom: solid 1px #000;
-}
-
-.recenter-button{
-}
-
-.title {
-  font-size: 2rem;
+.locations-header h2 {
   margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* LOCATIONS LIST - SCROLLABLE */
+.locations-list {
+  flex: 1;
+  overflow-y: auto;
+  background: #f9fafb;
+  padding: 16px;
+  min-height: 0;
+}
+
+/* BOTTOM SECTION */
+.bottom-section {
+  padding: 24px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.instructions {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+
+.button-container {
+  display: flex;
+  gap: 12px;
+}
+
+.action-button {
+  flex: 1;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-button:hover {
+  background: #e5e7eb;
+}
+
+.button-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+/* MAP SECTION */
+.map-section {
+  flex: 1;
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ARCGIS MAP FIX - UPDATED */
+.map-section arcgis-map {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+/* Additional map container fix */
+.map-section > div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* MAP OVERLAY */
+.map-overlay {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: #2563eb;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+}
+
+/* ARCGIS MAP FIX */
+arcgis-map {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* BATHROOM CARDS */
+.bathroom-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+  transition: box-shadow 0.2s;
+}
+
+.bathroom-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.card-content h1 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.card-content p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.4;
 }
