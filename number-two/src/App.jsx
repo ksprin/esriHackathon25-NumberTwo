@@ -10,7 +10,6 @@ import "@arcgis/map-components/components/arcgis-legend";
 import "@arcgis/map-components/components/arcgis-search";
 import "@arcgis/map-components/components/arcgis-locate";
 
-// Core API imports (from your friend's changes)
 import Map from "@arcgis/core/Map.js";
 import MapView from "@arcgis/core/views/MapView.js";
 import View from "@arcgis/core/views/View.js";
@@ -43,7 +42,6 @@ function App() {
     const defaultCenter = [-73.9856644, 40.7484405];
     const defaultZoom = 10;
 
-    // Your friend's backend variables
     let clickPoint; // Clicked Point on Map
 
     const [viewPoint, setViewPoint] = useState(null);
@@ -52,15 +50,13 @@ function App() {
 
     const locateRef = useRef(null);
 
-    // Your friend's graphics layer for pins
     let pointLayer = new GraphicsLayer({
         id: "pointLayer",
     });
 
-    // Your friend's updated handleViewReady function
     const handleViewReady = (event) => {
         let viewElement = event.target;
-        //setViewPoint(viewElement); // Your friend commented this out
+        //setViewPoint(viewElement); 
         const view = viewElement.arcgisView;
         viewElement.map.add(pointLayer); // Layer for point
     };
@@ -87,7 +83,6 @@ function App() {
         setAddPin(true);
     };
 
-    // Your friend's new functions for pin functionality
     // Clear Pin Layer
     function clearGraphics() {
         pointLayer.removeAll(); // Remove graphics from GraphicsLayer
@@ -334,7 +329,7 @@ function App() {
                 </div>
             </div>
 
-            {/* RIGHT SECTION - MAP with your friend's backend integration */}
+            {/* RIGHT SECTION */}
             <div style={{
                 flex: 1,
                 height: '100vh',
@@ -343,7 +338,7 @@ function App() {
                 <arcgis-map
                     item-id="5fcd777290d04ea2bcaa94a77374eeca"
                     onarcgisViewReadyChange={handleViewReady}
-                    onarcgisViewClick={handleClick}  // Your friend's click handler
+                    onarcgisViewClick={handleClick}  
                     center={defaultCenter.join(",")}
                     zoom={defaultZoom.toString()}
                     style={{
