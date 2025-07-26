@@ -35,17 +35,10 @@ function App() {
   });
 
   const handleViewReady = (event) => {
-    const viewElement = event.target;
-    //setViewPoint(viewElement);
-    //const view = viewElement.arcgisView;
+    let viewElement = event.target;
+    //setViewPoint(viewElement); // This causes adding point to no longer work
+    const view = viewElement.arcgisView;
     viewElement.map.add(pointLayer); // Layer for point
-
-    viewElement.addEventListener("arcgisViewClick", async (event) => {
-      clearGraphics();
-      clickPoint = event.detail.mapPoint;
-      // Pass point to the showPlaces() function
-      clickPoint && placePoint(clickPoint);
-    });
   };
 
   const recenterMap = () => {
@@ -86,12 +79,6 @@ function App() {
 
   // Place point based on click
   async function placePoint(click) {
-    // Graphic of pin
-    //const point = {
-    //  type: "point",
-    //  center: click,
-    //};
-
     const markerSymbol = {
       type: "simple-marker",
       style: "triangle",
@@ -143,7 +130,7 @@ function App() {
         <arcgis-map
           item-id="5fcd777290d04ea2bcaa94a77374eeca"
           onarcgisViewReadyChange={handleViewReady}
-          arcgisViewClick={handleClick}
+          onarcgisViewClick={handleClick}
           center={defaultCenter.join(",")}
           zoom={defaultZoom.toString()}
         >
