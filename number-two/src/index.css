@@ -7,9 +7,59 @@ html,
 body {
   height: 100%;
   margin: 0;
+  font-family: Helvetica;
 }
+
+/* COMPONENTS // types */
 
 arcgis-map {
   display: block;
   height: 100vh;
+}
+
+button{
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: Helvetica;
+}
+
+.cards{
+  display: grid;
+  max-height: 40vh;
+  overflow-y: auto;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.content{
+  padding: 5%;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+.map-container{
+  padding: 5%;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar{
+  padding-bottom: 1rem;
+  border-bottom: solid 1px #000;
+}
+
+.recenter-button{
+}
+
+.title {
+  font-size: 2rem;
+  margin: 0;
 }
