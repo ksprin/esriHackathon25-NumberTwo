@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Search, MapPin, Navigation, Plus } from "lucide-react";
 import "./index.css";
+import "./BathroomCard.jsx";
 
 // Individual imports for each component used in this sample
 import "@arcgis/map-components/components/arcgis-map";
