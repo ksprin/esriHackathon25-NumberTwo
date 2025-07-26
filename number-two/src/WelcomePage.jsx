@@ -44,9 +44,9 @@ function WelcomePage({ onGetStarted }) {
                 }}>
                     {/* Headline */}
                     <h1 style={{
-                        fontSize: window.innerWidth <= 768 ? '32px' : '42px',
+                        fontSize: window.innerWidth <= 768 ? '20px' : '30px',
                         color: '#593A28',
-                        marginBottom: '16px',
+                        marginBottom: '-20px',
                         fontWeight: '400',
                         lineHeight: '1.3'
                     }}>
@@ -75,12 +75,12 @@ function WelcomePage({ onGetStarted }) {
                             padding: window.innerWidth <= 768 ? '16px 32px' : '20px 40px',
                             borderRadius: '50px',
                             fontSize: window.innerWidth <= 768 ? '18px' : '22px',
-                            fontWeight: 'bold',
+                            fontWeight: '200',
                             cursor: 'pointer',
                             boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
                             transition: 'all 0.3s ease',
-                            marginBottom: '80px',
-                            fontFamily: 'inherit',
+                            marginBottom: '250px',
+                            fontFamily: '"Bagel Fat One", Georgia, serif',
                             transform: 'scale(1)'
                         }}
                         onMouseEnter={(e) => {
@@ -116,7 +116,7 @@ function WelcomePage({ onGetStarted }) {
                         <img
                             src="/DesktopView.png"
                             alt="GottaGo"
-                            style={{ height: window.innerWidth <= 768 ? '60px' : '80px', width: 'auto' }}
+                            style={{ height: window.innerWidth <= 768 ? '60px' : '180px', width: '300px' }}
                         />
 
                         {/* OPTION 3: Toilet Icon + Text (current fallback) */}
