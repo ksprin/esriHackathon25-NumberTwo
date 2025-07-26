@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import WelcomePage from "./WelcomePage.jsx";
 import MainApp from "./MainApp.jsx";
 import "./index.css";
+import "./BathroomCard.jsx";
 
 function App() {
     const [currentPage, setCurrentPage] = useState('welcome'); // 'welcome' or 'main'
