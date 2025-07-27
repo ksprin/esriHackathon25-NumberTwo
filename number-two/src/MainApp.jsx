@@ -223,7 +223,7 @@ function MainApp({ onBackToWelcome }) {
             onClick={handleEndSession}
             style={{
                 position: 'fixed',
-                bottom: isMobile ? '20px' : '24px',
+                bottom: isMobile ? '10px' : '14px',
                 right: isMobile ? '20px' : '24px',
                 background: '#dc2626',
                 color: 'white',
