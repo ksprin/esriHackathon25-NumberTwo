@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Search, MapPin, Navigation, Plus, ChevronUp, ChevronDown, ArrowLeft } from "lucide-react";
 import "./index.css";
-import "./BathroomCard.jsx";
+import Router from "./Router";
 
 // Individual imports for each component used in this sample
 import "@arcgis/map-components/components/arcgis-map";
@@ -62,6 +62,13 @@ function MainApp({ onBackToWelcome }) {
     const bottomSheetRef = useRef(null);
     const dragStartY = useRef(0);
     const dragStartHeight = useRef(0);
+    
+    // Solve route conditional
+    const [shouldRoute, setShouldRoute] = useState(false);
+
+    const handleRouteClick = () => {
+        setShouldRoute(true);
+    };
 
     // Graphics layer for pins
     let pointLayer = new GraphicsLayer({
@@ -85,6 +92,10 @@ function MainApp({ onBackToWelcome }) {
     let selectedLayer = new GraphicsLayer({
         id: "selectedLayer",
     });
+
+    // Route graphic layer for directions
+    const routeLayerRef = useRef(new GraphicsLayer({ id: "routeLayer" }));
+
 
     // Handle window resize
     useEffect(() => {
@@ -166,6 +177,7 @@ function MainApp({ onBackToWelcome }) {
         const view = viewElement.arcgisView;
         viewElement.map.add(pointLayer); // Layer for point
         viewElement.map.add(selectedLayer); // Layer for selected bathroom points
+        viewElement.map.add(routeLayerRef.current); // Layer for routes
         viewElement.map.add(radiusLayer); //Layer for radius
     };
 
@@ -190,6 +202,8 @@ function MainApp({ onBackToWelcome }) {
     const enableAddPinMode = () => {
         setAddPin(true);
     };
+
+    /* POINT / FEATURE QUERY LOGIC */
 
     // Clear Pin Layer
     function clearGraphics() {
@@ -745,6 +759,9 @@ function MainApp({ onBackToWelcome }) {
                         >
                             <Navigation size={20} />
                         </button>
+
+                        <button onClick={handleRouteClick}>Compute Route</button>
+                        {shouldRoute && <Router graphicsLayer={routeLayerRef.current}/>}
                     </div>
                 )}
             </div>
