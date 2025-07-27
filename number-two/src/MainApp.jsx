@@ -15,6 +15,7 @@ import "@arcgis/map-components/components/arcgis-locate";
 import Map from "@arcgis/core/Map.js";
 import MapView from "@arcgis/core/views/MapView.js";
 import View from "@arcgis/core/views/View.js";
+import Circle from "@arcgis/core/geometry/Circle.js";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer.js";
 import Graphic from "@arcgis/core/Graphic.js";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
@@ -55,6 +56,7 @@ function MainApp({ onBackToWelcome }) {
     const [bottomSheetHeight, setBottomSheetHeight] = useState(window.innerWidth <= 768 ? 160 : 420);
     const [isDragging, setIsDragging] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const [selectedRadius, setSelectedRadius] = useState('0.5');
 
     const locateRef = useRef(null);
     const bottomSheetRef = useRef(null);
@@ -71,6 +73,11 @@ function MainApp({ onBackToWelcome }) {
     // Graphics layer for pins
     let pointLayer = new GraphicsLayer({
         id: "pointLayer",
+    });
+
+    // Graphics layer for radius
+    let radiusLayer = new GraphicsLayer({
+        id: "radiusLayer",
     });
 
     // Feature Layer with real bathroom data
@@ -171,6 +178,7 @@ function MainApp({ onBackToWelcome }) {
         viewElement.map.add(pointLayer); // Layer for point
         viewElement.map.add(selectedLayer); // Layer for selected bathroom points
         viewElement.map.add(routeLayerRef.current); // Layer for routes
+        viewElement.map.add(radiusLayer); //Layer for radius
     };
 
     const recenterMap = () => {
@@ -201,6 +209,7 @@ function MainApp({ onBackToWelcome }) {
     function clearGraphics() {
         pointLayer.removeAll(); // Remove graphics from GraphicsLayer
         selectedLayer.removeAll(); // Clear selection
+        radiusLayer.removeAll(); // Clear radius
     }
 
     // Event Listener for dropping pin
@@ -229,6 +238,28 @@ function MainApp({ onBackToWelcome }) {
             symbol: markerSymbol,
         });
 
+        const circleGeometry = new Circle({
+            center: click,
+            geodesic: true,
+            numberOfPoints: 100,
+            radius: distance,
+            radiusUnit: "miles",
+        });
+
+        const circleGraphic = new Graphic({
+            geometry: circleGeometry,
+            symbol: {
+            type: "simple-fill", // autocasts as SimpleFillSymbol
+            style: "solid",
+            color: [3, 140, 255, 0.1],
+            outline: {
+                width: 1,
+                color: [3, 140, 255],
+            },
+            },
+        });
+
+        radiusLayer.graphics.add(circleGraphic);
         pointLayer.graphics.add(pointGraphic);
     };
 
