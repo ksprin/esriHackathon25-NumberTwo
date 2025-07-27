@@ -17,6 +17,7 @@ import MapView from "@arcgis/core/views/MapView.js";
 import View from "@arcgis/core/views/View.js";
 import * as geometryEngine from "@arcgis/core/geometry/geometryEngine"
 import Point from "@arcgis/core/geometry/Point"
+import Polyline from "@arcgis/core/geometry/Polyline"
 import Circle from "@arcgis/core/geometry/Circle.js";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer.js";
 import Graphic from "@arcgis/core/Graphic.js";
@@ -42,6 +43,7 @@ function MainApp({ onBackToWelcome }) {
     const [shouldRoute, setShouldRoute] = useState(false);
     const [clickGeom, setClickGeom] = useState(null);
     const [selectedBathroom, setSelectedBathroom] = useState(null);
+    const [routeDistance, setRouteDistance] = useState(null);
 
 
     const locateRef = useRef(null);
@@ -204,6 +206,7 @@ function MainApp({ onBackToWelcome }) {
         setQueriedFeatures([]);
         setSelectedBathroom(null);
         setClickGeom(null);
+        setRouteDistance(null);
         setAddPin(false);
         setSearchValue("");
 
@@ -360,6 +363,32 @@ function MainApp({ onBackToWelcome }) {
         selectedLayerRef.current.graphics.addMany(graphics);
     }
 
+    // Calculate distance for a bathroom feature
+    const calculateDistanceToFeature = (feature) => {
+        if (!clickGeom) return "N/A";
+
+        const bathroomPoint = new Point({
+            latitude: feature.attributes.Latitude,
+            longitude: feature.attributes.Longitude,
+            spatialReference: { wkid: 4326 }
+        });
+
+        // Create a line geometry between the two points
+        const line = new Polyline({
+            paths: [[
+                [clickGeom.longitude, clickGeom.latitude],
+                [bathroomPoint.longitude, bathroomPoint.latitude]
+            ]],
+            spatialReference: { wkid: 4326 }
+        });
+
+        // Calculate geodesic distance using the line
+        const distanceInMeters = geometryEngine.geodesicLength(line, "meters");
+        const distanceInMiles = distanceInMeters * 0.000621371; // Convert meters to miles
+
+        return distanceInMiles.toFixed(2);
+    };
+
     /* ROUTING LOGIC */
     const handleRouteClick = (feature) => {
         const bathroomPoint = new Point({
@@ -368,8 +397,16 @@ function MainApp({ onBackToWelcome }) {
             spatialReference: { wkid: 4326 }
         });
 
-        routeLayerRef.current.graphics.removeAll();
+        // Calculate distance between click point and bathroom
+        if (clickGeom) {
+            const distanceInMiles = calculateDistanceToFeature(feature);
+            console.log(`Distance to ${feature.attributes.Facility_Name}: ${distanceInMiles} miles`);
 
+            // Store distance in state for display
+            setRouteDistance(distanceInMiles);
+        }
+
+        routeLayerRef.current.graphics.removeAll();
         setSelectedBathroom(bathroomPoint);
     };
 
@@ -513,6 +550,7 @@ function MainApp({ onBackToWelcome }) {
                                     <BathroomCard
                                         title={feature.attributes.Facility_Name}
                                         description={feature.attributes.Restroom_Type}
+                                        distance={calculateDistanceToFeature(feature)}
                                     />
                                     <button style={{ padding: '0.5rem', borderRadius: "0.25rem", backgroundColor: "white"}} onClick={() => handleRouteClick(feature)}>Go here</button>
                                 </div>
@@ -780,6 +818,7 @@ function MainApp({ onBackToWelcome }) {
                                 <BathroomCard
                                     title={feature.attributes.Facility_Name}
                                     description={feature.attributes.Restroom_Type}
+                                    distance={calculateDistanceToFeature(feature)}
                                 />
                                 <button style={{ padding: '0.5rem', borderRadius: "0.25rem", backgroundColor: "white"}} onClick={() => handleRouteClick(feature)}>Go here</button>
                             </div>
