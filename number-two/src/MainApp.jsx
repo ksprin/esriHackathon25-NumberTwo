@@ -1,6 +1,6 @@
 // MainApp.jsx
 import { useEffect, useRef, useState } from "react";
-import { Search, Navigation, Plus, ChevronUp, ChevronDown, ArrowLeft, Bath } from "lucide-react";
+import { Search, Navigation, Plus, ChevronUp, ChevronDown, ArrowLeft, Bath, LogOut } from "lucide-react";
 import "./index.css";
 import Router from "./Router";
 
@@ -48,7 +48,7 @@ function MainApp({ onBackToWelcome }) {
     const bottomSheetRef = useRef(null);
     const dragStartY = useRef(0);
     const dragStartHeight = useRef(0);
-    
+
 
     // Graphics layer for pins
     const pointLayerRef = useRef(new GraphicsLayer({ id: "pointLayer" }));
@@ -176,7 +176,7 @@ function MainApp({ onBackToWelcome }) {
         }
     }, []);
 
-    
+
     const toggleBottomSheet = () => {
         if (!isMobile) return;
 
@@ -193,6 +193,64 @@ function MainApp({ onBackToWelcome }) {
     const enableAddPinMode = () => {
         setAddPin(true);
     };
+
+    // End Session Handler
+    const handleEndSession = () => {
+        // Clear all graphics and reset state
+        pointLayerRef.current.removeAll();
+        radiusLayerRef.current.removeAll();
+        selectedLayerRef.current.removeAll();
+        routeLayerRef.current.removeAll();
+        setQueriedFeatures([]);
+        setSelectedBathroom(null);
+        setClickGeom(null);
+        setAddPin(false);
+        setSearchValue("");
+
+        // Open feedback form in new tab
+        if (confirm("Are you sure you want to end your session? This will clear all data and open a feedback form in a new tab.")) {
+            // Open ArcGIS Survey123 feedback form in new tab
+            window.open("https://survey123.arcgis.com/share/f71fafe9e70b4968b0200dbfb7aa96f1?portalUrl=https://intern-hackathon.maps.arcgis.com", "_blank");
+        }
+    };
+
+    // End Session Button Component
+    const EndSessionButton = () => (
+        <button
+            onClick={handleEndSession}
+            style={{
+                position: 'fixed',
+                bottom: isMobile ? '20px' : '24px',
+                right: isMobile ? '20px' : '24px',
+                background: '#dc2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50px',
+                padding: isMobile ? '12px 20px' : '14px 24px',
+                fontSize: isMobile ? '14px' : '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
+                transition: 'all 0.2s ease',
+                zIndex: 1001,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontFamily: 'inherit'
+            }}
+            onMouseEnter={(e) => {
+                e.target.style.transform = 'scale(1.05)';
+                e.target.style.boxShadow = '0 6px 16px rgba(220, 38, 38, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+                e.target.style.transform = 'scale(1)';
+                e.target.style.boxShadow = '0 4px 12px rgba(220, 38, 38, 0.3)';
+            }}
+        >
+            <LogOut size={isMobile ? 16 : 18} />
+            End Session
+        </button>
+    );
 
     /* POINT / FEATURE QUERY LOGIC */
 
@@ -246,13 +304,13 @@ function MainApp({ onBackToWelcome }) {
         const circleGraphic = new Graphic({
             geometry: circleGeometry,
             symbol: {
-            type: "simple-fill", // autocasts as SimpleFillSymbol
-            style: "solid",
-            color: [3, 140, 255, 0.1],
-            outline: {
-                width: 1,
-                color: [3, 140, 255],
-            },
+                type: "simple-fill", // autocasts as SimpleFillSymbol
+                style: "solid",
+                color: [3, 140, 255, 0.1],
+                outline: {
+                    width: 1,
+                    color: [3, 140, 255],
+                },
             },
         });
         radiusLayerRef.current.graphics.add(circleGraphic);
@@ -292,9 +350,9 @@ function MainApp({ onBackToWelcome }) {
 
         const graphics = results.features.map((feature) => {
             return new Graphic({
-            geometry: feature.geometry,
-            attributes: feature.attributes,
-            symbol: symbol
+                geometry: feature.geometry,
+                attributes: feature.attributes,
+                symbol: symbol
             });
         });
 
@@ -437,42 +495,42 @@ function MainApp({ onBackToWelcome }) {
                             fontWeight: '600',
                             color: '#111827'
                         }}>
-                            Nearby Restrooms (12)
+                            Nearby Restrooms ({queriedFeatures.length})
                         </h2>
                     </div>
 
                     {/* SCROLLABLE LOCATIONS LIST */}
-                        <div style={{
-                            flex: 1,
-                            overflowY: 'auto',
-                            padding: '0 16px',
-                            minHeight: 0,
-                            paddingBottom: '16px'
-                        }}>
-                            <div className="feature-cards">
-                                {queriedFeatures.map((feature, index) => (
-                                    <div key={index}>
-                                        <BathroomCard
-                                            title={feature.attributes.Facility_Name}
-                                            description={feature.attributes.Restroom_Type}
-                                        />
-                                        <button style={{ padding: '0.5rem', borderRadius: "0.25rem", backgroundColor: "white"}} onClick={() => handleRouteClick(feature)}>Go here</button>
-                                    </div>
-                                ))}
-                                {clickGeom && selectedBathroom && (
-                                    <Router
-                                        key={`${clickGeom.latitude}-${selectedBathroom.latitude}`}
-                                        graphicsLayer={routeLayerRef.current}
-                                        PointA={clickGeom}
-                                        PointB={selectedBathroom}
+                    <div style={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        padding: '0 16px',
+                        minHeight: 0,
+                        paddingBottom: '16px'
+                    }}>
+                        <div className="feature-cards">
+                            {queriedFeatures.map((feature, index) => (
+                                <div key={index}>
+                                    <BathroomCard
+                                        title={feature.attributes.Facility_Name}
+                                        description={feature.attributes.Restroom_Type}
                                     />
-                                )}
-        
-                            </div>
-                        
+                                    <button style={{ padding: '0.5rem', borderRadius: "0.25rem", backgroundColor: "white"}} onClick={() => handleRouteClick(feature)}>Go here</button>
+                                </div>
+                            ))}
+                            {clickGeom && selectedBathroom && (
+                                <Router
+                                    key={`${clickGeom.latitude}-${selectedBathroom.latitude}`}
+                                    graphicsLayer={routeLayerRef.current}
+                                    PointA={clickGeom}
+                                    PointB={selectedBathroom}
+                                />
+                            )}
 
-                    {/* BOTTOM SECTION */}
-                    
+                        </div>
+
+
+                        {/* BOTTOM SECTION */}
+
                         <p style={{
                             margin: '0 0 16px 0',
                             color: '#4b5563',
@@ -528,6 +586,9 @@ function MainApp({ onBackToWelcome }) {
                         </div>
                     )}
                 </div>
+
+                {/* END SESSION BUTTON */}
+                <EndSessionButton />
             </div>
         );
     }
@@ -735,6 +796,9 @@ function MainApp({ onBackToWelcome }) {
                     </div>
                 </div>
             </div>
+
+            {/* END SESSION BUTTON - Mobile */}
+            <EndSessionButton />
         </div>
     );
 }

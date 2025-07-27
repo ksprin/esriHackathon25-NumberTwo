@@ -8,7 +8,7 @@ import esriConfig from "@arcgis/core/config";
 esriConfig.apiKey = import.meta.env.VITE_AGO_KEY;
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+    <StrictMode>
+        <App />
+    </StrictMode>,
 )
