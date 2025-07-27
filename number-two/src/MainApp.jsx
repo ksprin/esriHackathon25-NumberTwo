@@ -223,9 +223,9 @@ function MainApp({ onBackToWelcome }) {
             type: "simple-marker",
             style: "triangle",
             size: 15,
-            color: "red",
+            color: '#75B2BF',
             outline: {
-                color: "white",
+                color: '#593A28',
                 width: 2,
             },
         };
@@ -283,9 +283,9 @@ function MainApp({ onBackToWelcome }) {
             type: "simple-marker",
             style: "triangle",
             size: 10,
-            color: "blue",
+            color: '#d2691e',
             outline: {
-                color: "white",
+                color: 'white',
                 width: 2,
             },
         };
@@ -442,29 +442,37 @@ function MainApp({ onBackToWelcome }) {
                     </div>
 
                     {/* SCROLLABLE LOCATIONS LIST */}
-                    <div style={{
-                        flex: 1,
-                        overflowY: 'auto',
-                        background: '#f9fafb',
-                        padding: '16px',
-                        minHeight: 0
-                    }}>
-                        <BathroomCard title="Starbucks Coffee" description="Clean restroom, customer access only" location={[0,0,0]} />
-                        <BathroomCard title="Central Park Visitor Center" description="Public restroom, accessible, family-friendly" location={[0,0,0]} />
-                        <BathroomCard title="McDonald's" description="Fast food restaurant restroom" location={[0,0,0]} />
-                        <BathroomCard title="Public Library" description="Clean public restroom, accessible" location={[0,0,0]} />
-                        <BathroomCard title="Gas Station" description="24/7 access, may require key" location={[0,0,0]} />
-                        <BathroomCard title="Shopping Mall" description="Large restroom facility" location={[0,0,0]} />
-                        <BathroomCard title="City Hall" description="Public access during hours" location={[0,0,0]} />
-                    </div>
+                        <div style={{
+                            flex: 1,
+                            overflowY: 'auto',
+                            padding: '0 16px',
+                            minHeight: 0,
+                            paddingBottom: '16px'
+                        }}>
+                            <div className="feature-cards">
+                                {queriedFeatures.map((feature, index) => (
+                                    <div key={index}>
+                                        <BathroomCard
+                                            title={feature.attributes.Facility_Name}
+                                            description={feature.attributes.Restroom_Type}
+                                        />
+                                        <button style={{ padding: '0.5rem', borderRadius: "0.25rem", backgroundColor: "white"}} onClick={() => handleRouteClick(feature)}>Go here</button>
+                                    </div>
+                                ))}
+                                {clickGeom && selectedBathroom && (
+                                    <Router
+                                        key={`${clickGeom.latitude}-${selectedBathroom.latitude}`}
+                                        graphicsLayer={routeLayerRef.current}
+                                        PointA={clickGeom}
+                                        PointB={selectedBathroom}
+                                    />
+                                )}
+        
+                            </div>
+                        
 
                     {/* BOTTOM SECTION */}
-                    <div style={{
-                        padding: '24px',
-                        background: 'white',
-                        borderTop: '1px solid #e5e7eb',
-                        flexShrink: 0
-                    }}>
+                    
                         <p style={{
                             margin: '0 0 16px 0',
                             color: '#4b5563',
