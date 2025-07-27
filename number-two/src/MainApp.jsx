@@ -1,6 +1,6 @@
 // MainApp.jsx
 import { useEffect, useRef, useState } from "react";
-import { Search, MapPin, Navigation, Plus, ChevronUp, ChevronDown, ArrowLeft } from "lucide-react";
+import { Search, Navigation, Plus, ChevronUp, ChevronDown, ArrowLeft, Bath } from "lucide-react";
 import "./index.css";
 import Router from "./Router";
 
@@ -15,32 +15,13 @@ import "@arcgis/map-components/components/arcgis-locate";
 import Map from "@arcgis/core/Map.js";
 import MapView from "@arcgis/core/views/MapView.js";
 import View from "@arcgis/core/views/View.js";
+import * as geometryEngine from "@arcgis/core/geometry/geometryEngine"
+import Point from "@arcgis/core/geometry/Point"
 import Circle from "@arcgis/core/geometry/Circle.js";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer.js";
 import Graphic from "@arcgis/core/Graphic.js";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
-
-// Simple BathroomCard component
-function BathroomCard({ title, description, location }) {
-    return (
-        <div className="bathroom-card" style={{ marginBottom: '12px' }}>
-            <div className="card-content">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <h1 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>{title}</h1>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ color: '#16a34a', fontSize: '12px', fontWeight: '500' }}>Open</span>
-                        <div style={{ color: '#eab308', fontSize: '14px' }}>★★★★☆</div>
-                    </div>
-                </div>
-                <p style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '14px', lineHeight: '1.4' }}>{description}</p>
-                <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280', fontSize: '12px' }}>
-                    <MapPin style={{ width: '14px', height: '14px', marginRight: '6px' }} />
-                    <span>0.2 miles away</span>
-                </div>
-            </div>
-        </div>
-    );
-}
+import BathroomCard from "./BathroomCard"
 
 function MainApp({ onBackToWelcome }) {
     const defaultCenter = [-73.9856644, 40.7484405];
@@ -57,28 +38,24 @@ function MainApp({ onBackToWelcome }) {
     const [isDragging, setIsDragging] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const [selectedRadius, setSelectedRadius] = useState('0.5');
+    const [queriedFeatures, setQueriedFeatures] = useState([]);
+    const [shouldRoute, setShouldRoute] = useState(false);
+    const [clickGeom, setClickGeom] = useState(null);
+    const [selectedBathroom, setSelectedBathroom] = useState(null);
+
 
     const locateRef = useRef(null);
     const bottomSheetRef = useRef(null);
     const dragStartY = useRef(0);
     const dragStartHeight = useRef(0);
     
-    // Solve route conditional
-    const [shouldRoute, setShouldRoute] = useState(false);
-
-    const handleRouteClick = () => {
-        setShouldRoute(true);
-    };
 
     // Graphics layer for pins
-    let pointLayer = new GraphicsLayer({
-        id: "pointLayer",
-    });
+    const pointLayerRef = useRef(new GraphicsLayer({ id: "pointLayer" }));
 
     // Graphics layer for radius
-    let radiusLayer = new GraphicsLayer({
-        id: "radiusLayer",
-    });
+    const radiusLayerRef = useRef(new GraphicsLayer({ id: "radiusLayer" }));
+
 
     // Feature Layer with real bathroom data
     let dataLayer = new FeatureLayer({
@@ -89,13 +66,11 @@ function MainApp({ onBackToWelcome }) {
     });
 
     // Graphic Layer for selected bathroom data points
-    let selectedLayer = new GraphicsLayer({
-        id: "selectedLayer",
-    });
+    const selectedLayerRef = useRef(new GraphicsLayer({ id: "selectedLayer" }));
+
 
     // Route graphic layer for directions
     const routeLayerRef = useRef(new GraphicsLayer({ id: "routeLayer" }));
-
 
     // Handle window resize
     useEffect(() => {
@@ -175,10 +150,12 @@ function MainApp({ onBackToWelcome }) {
     const handleViewReady = (event) => {
         let viewElement = event.target;
         const view = viewElement.arcgisView;
-        viewElement.map.add(pointLayer); // Layer for point
-        viewElement.map.add(selectedLayer); // Layer for selected bathroom points
-        viewElement.map.add(routeLayerRef.current); // Layer for routes
-        viewElement.map.add(radiusLayer); //Layer for radius
+        viewElement.map.addMany([
+            pointLayerRef.current,
+            radiusLayerRef.current,
+            selectedLayerRef.current,
+            routeLayerRef.current
+        ]);
     };
 
     const recenterMap = () => {
@@ -199,6 +176,20 @@ function MainApp({ onBackToWelcome }) {
         }
     }, []);
 
+    
+    const toggleBottomSheet = () => {
+        if (!isMobile) return;
+
+        const windowHeight = window.innerHeight;
+        if (bottomSheetHeight <= 160) {
+            setBottomSheetHeight(windowHeight * 0.5);
+        } else if (bottomSheetHeight <= windowHeight * 0.5) {
+            setBottomSheetHeight(windowHeight * 0.8);
+        } else {
+            setBottomSheetHeight(160);
+        }
+    };
+
     const enableAddPinMode = () => {
         setAddPin(true);
     };
@@ -207,15 +198,21 @@ function MainApp({ onBackToWelcome }) {
 
     // Clear Pin Layer
     function clearGraphics() {
-        pointLayer.removeAll(); // Remove graphics from GraphicsLayer
-        selectedLayer.removeAll(); // Clear selection
-        radiusLayer.removeAll(); // Clear radius
+        pointLayerRef.current.removeAll(); // Remove graphics from GraphicsLayer
+        selectedLayerRef.current.removeAll(); // Clear selection
+        radiusLayerRef.current.removeAll(); // Clear radius
     }
 
     // Event Listener for dropping pin
     const handleClick = async (event) => {
         clearGraphics();
         clickPoint = event.detail.mapPoint;
+        let clickGeom = new Point({
+            longitude: clickPoint.longitude,
+            latitude: clickPoint.latitude,
+            spatialReference: { wkid: 4326 }
+        });
+        setClickGeom(clickGeom);
         // Pass point to the showPlaces() function
         clickPoint && placePoint(clickPoint);
         clickPoint && queryFeatures(clickPoint);
@@ -258,9 +255,8 @@ function MainApp({ onBackToWelcome }) {
             },
             },
         });
-
-        radiusLayer.graphics.add(circleGraphic);
-        pointLayer.graphics.add(pointGraphic);
+        radiusLayerRef.current.graphics.add(circleGraphic);
+        pointLayerRef.current.graphics.add(pointGraphic);
     };
 
     // Query the feature layer with the bathroom data points
@@ -269,7 +265,6 @@ function MainApp({ onBackToWelcome }) {
         dataLayer
             .queryFeatures({
                 geometry: point,
-                // distance and units will be null if basic query selected
                 distance: distance,
                 units: units,
                 spatialRelationship: "intersects",
@@ -279,6 +274,7 @@ function MainApp({ onBackToWelcome }) {
             })
             .then((results) => {
                 displayResults(results);
+                setQueriedFeatures(results.features);
             });
     }
 
@@ -294,25 +290,31 @@ function MainApp({ onBackToWelcome }) {
             },
         };
 
-        results.features.forEach((feature) => {
-            feature.symbol = symbol;
+        const graphics = results.features.map((feature) => {
+            return new Graphic({
+            geometry: feature.geometry,
+            attributes: feature.attributes,
+            symbol: symbol
+            });
         });
 
-        selectedLayer.graphics.addMany(results.features);
+        selectedLayerRef.current.graphics.removeAll(); // Optional: clear previous graphics
+        selectedLayerRef.current.graphics.addMany(graphics);
     }
 
-    const toggleBottomSheet = () => {
-        if (!isMobile) return;
+    /* ROUTING LOGIC */
+    const handleRouteClick = (feature) => {
+        const bathroomPoint = new Point({
+            latitude: feature.attributes.Latitude,
+            longitude: feature.attributes.Longitude,
+            spatialReference: { wkid: 4326 }
+        });
 
-        const windowHeight = window.innerHeight;
-        if (bottomSheetHeight <= 160) {
-            setBottomSheetHeight(windowHeight * 0.5);
-        } else if (bottomSheetHeight <= windowHeight * 0.5) {
-            setBottomSheetHeight(windowHeight * 0.8);
-        } else {
-            setBottomSheetHeight(160);
-        }
+        routeLayerRef.current.graphics.removeAll();
+
+        setSelectedBathroom(bathroomPoint);
     };
+
 
     // Desktop layout
     if (!isMobile) {
@@ -676,7 +678,7 @@ function MainApp({ onBackToWelcome }) {
                         fontWeight: '600',
                         color: '#111827'
                     }}>
-                        Nearby Restrooms (12)
+                        Nearby Restrooms ({queriedFeatures.length})
                     </h2>
                     <button
                         onClick={toggleBottomSheet}
@@ -703,67 +705,27 @@ function MainApp({ onBackToWelcome }) {
                     minHeight: 0,
                     paddingBottom: '16px'
                 }}>
-                    <BathroomCard title="Starbucks Coffee" description="Clean restroom, customer access only" location={[0,0,0]} />
-                    <BathroomCard title="Central Park Visitor Center" description="Public restroom, accessible, family-friendly" location={[0,0,0]} />
-                    <BathroomCard title="McDonald's" description="Fast food restaurant restroom" location={[0,0,0]} />
-                    <BathroomCard title="Public Library" description="Clean public restroom, accessible" location={[0,0,0]} />
-                    <BathroomCard title="Gas Station" description="24/7 access, may require key" location={[0,0,0]} />
-                    <BathroomCard title="Shopping Mall" description="Large restroom facility" location={[0,0,0]} />
-                    <BathroomCard title="City Hall" description="Public access during hours" location={[0,0,0]} />
-                </div>
+                    <div className="feature-cards">
+                        {queriedFeatures.map((feature, index) => (
+                            <div key={index}>
+                                <BathroomCard
+                                    title={feature.attributes.Facility_Name}
+                                    description={feature.attributes.Restroom_Type}
+                                />
+                                <button style={{ padding: '0.5rem', borderRadius: "0.25rem", backgroundColor: "white"}} onClick={() => handleRouteClick(feature)}>Go here</button>
+                            </div>
+                        ))}
+                        {clickGeom && selectedBathroom && (
+                            <Router
+                                key={`${clickGeom.latitude}-${selectedBathroom.latitude}`}
+                                graphicsLayer={routeLayerRef.current}
+                                PointA={clickGeom}
+                                PointB={selectedBathroom}
+                            />
+                        )}
 
-                {/* FLOATING ACTION BUTTONS - Mobile */}
-                {bottomSheetHeight <= 250 && (
-                    <div style={{
-                        position: 'absolute',
-                        bottom: `${bottomSheetHeight + 16}px`,
-                        right: '16px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '12px',
-                        zIndex: 999
-                    }}>
-                        <button
-                            onClick={enableAddPinMode}
-                            style={{
-                                width: '56px',
-                                height: '56px',
-                                borderRadius: '50%',
-                                background: '#2563eb',
-                                border: 'none',
-                                color: 'white',
-                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}
-                        >
-                            <Plus size={24} />
-                        </button>
-                        <button
-                            onClick={recenterMap}
-                            style={{
-                                width: '56px',
-                                height: '56px',
-                                borderRadius: '50%',
-                                background: 'white',
-                                border: '1px solid #d1d5db',
-                                color: '#374151',
-                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}
-                        >
-                            <Navigation size={20} />
-                        </button>
-
-                        <button onClick={handleRouteClick}>Compute Route</button>
-                        {shouldRoute && <Router graphicsLayer={routeLayerRef.current}/>}
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );
