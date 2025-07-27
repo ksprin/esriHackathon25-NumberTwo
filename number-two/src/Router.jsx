@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-function Router({ graphicsLayer }) {
+function Router({ graphicsLayer, PointA, PointB }) {
   useEffect(() => {
     const solveRoute = async () => {
       try {
@@ -18,11 +18,11 @@ function Router({ graphicsLayer }) {
 
         const stops = new Collection([
             new Stop({
-                geometry: { x: -73.7781, y: 40.6413 }, // JFK Airport
+                geometry: PointA, // JFK Airport
                 name: "JFK Airport"
             }),
             new Stop({
-                geometry: { x: -73.9857, y: 40.7484 }, // Empire State Building
+                geometry: PointB, // Empire State Building
                 name: "Empire State Building"
             }),
         ]);
@@ -31,11 +31,11 @@ function Router({ graphicsLayer }) {
           returnRoutes: true,
           stops
         });
-
+        
         const result = await solve(routeUrl, routeParams);
         const route = result.routeResults[0].route;
+        graphicsLayer.graphics.removeAll();
         graphicsLayer.graphics.add(route);
-        console.log(route);
 
       } catch (error) {
         console.error("Error solving route:", error);
