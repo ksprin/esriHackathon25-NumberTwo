@@ -14,7 +14,7 @@ function BathroomCard({ title, description, distance }) {
                 <p style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '14px', lineHeight: '1.4' }}>{description}</p>
                 <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280', fontSize: '12px' }}>
                     <MapPin style={{ width: '14px', height: '14px', marginRight: '6px' }} />
-                    <span>0.2 miles away</span>
+                    <span>{distance !== "N/A" ? `${distance} miles away` : "Distance unavailable"}</span>
                 </div>
             </div>
         </div>
