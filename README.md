@@ -1,5 +1,11 @@
 # ESRI Hackathon25 NumberTwo - Gotta Go
 
+## What this Repository is
+
+This repository is a fork of my team's project from the 2025 Esri Intern Hackathon, which I participated in during my internship there in the Summer of 2025. The goal of the hackathon was for teams to construct an application that uses Esri technology within one weekend. My team created the "GottaGo" app that directs users to their nearest public restroom. It was made with JavaScript and React. I have included a video demo on this repository. Our team was a finalist in the competition. 
+
+Team Members: Kayla Sprincis, Alex Van De Water, Patricia Zwolinski, Simran Gawri, Wynnie Gross, and Chris Sanrow
+
 ## About
 
 Gotta Go is a standalone React web application that utilizes ArcGIS SDK technology to provide users with a seamless way to find convenient bathrooms on the go.
